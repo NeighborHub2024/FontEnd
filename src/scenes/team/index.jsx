@@ -15,6 +15,7 @@ const Team = () => {
       setData(result);
     } catch (error) {
       console.error("Failed to fetch data:", error);
+      message.error("Error fetching registration forms.");
     } finally {
       setLoading(false);
     }
@@ -28,8 +29,9 @@ const Team = () => {
     try {
       await acceptRegistrationForm(registrationId);
       message.success("Registration accepted successfully");
-      fetchData();
+      fetchData(); // Refresh the data
     } catch (error) {
+      console.error("Failed to accept registration:", error);
       message.error("Failed to accept registration");
     }
   };
@@ -37,8 +39,8 @@ const Team = () => {
   const columns = [
     {
       title: "STT",
-      dataIndex: "registrationId",
-      key: "registrationId",
+      key: "index",
+      render: (text, record, index) => index + 1, // Show serial number
     },
     {
       title: "Biển số xe",
@@ -51,7 +53,7 @@ const Team = () => {
       key: "vehicleType",
     },
     {
-      title: "Giáy phép lái xe",
+      title: "Giấy phép lái xe",
       dataIndex: "driversLicenseNumber",
       key: "driversLicenseNumber",
     },
@@ -75,7 +77,7 @@ const Team = () => {
       title: "Trạng thái",
       key: "status",
       render: (_, { status }) => {
-        let color = status === 1 ? "green" : "red";
+        const color = status === 1 ? "green" : "red";
         return <Tag color={color}>{status === 1 ? "Accepted" : "Pending"}</Tag>;
       },
     },
@@ -86,7 +88,7 @@ const Team = () => {
         <Button
           type="primary"
           onClick={() => handleAccept(record.registrationId)}
-          disabled={record.status === 1} // Disable button if already accepted
+          disabled={record.status === 1} // Disable if already accepted
         >
           Accept
         </Button>

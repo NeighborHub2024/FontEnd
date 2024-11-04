@@ -18,12 +18,18 @@ import {
   TimelineOutlined,
   WavesOutlined,
 } from "@mui/icons-material";
+import PaymentIcon from '@mui/icons-material/Payment';
 import avatar from "../../../assets/images/avatar.png";
 import logo from "../../../assets/images/logo.png";
 import Item from "./Item";
 import { ToggledContext } from "../../../App";
+import { useAuth } from "../../../utils/hooks/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const SideBar = () => {
+  const {user} = useAuth();
+    const navigate = useNavigate();
+
   const [collapsed, setCollapsed] = useState(false);
   const { toggled, setToggled } = useContext(ToggledContext);
   const theme = useTheme();
@@ -74,9 +80,9 @@ const SideBar = () => {
                   variant="h4"
                   fontWeight="bold"
                   textTransform="capitalize"
-                  color={colors.greenAccent[500]}
+                  color={'#EF3167'}
                 >
-                  Argon
+                  NeighborHub
                 </Typography>
               </Box>
             )}
@@ -103,14 +109,14 @@ const SideBar = () => {
           />
           <Box sx={{ textAlign: "center" }}>
             <Typography variant="h3" fontWeight="bold" color={colors.gray[100]}>
-              Tony Stark
+              Admin {user.username}
             </Typography>
             <Typography
               variant="h6"
               fontWeight="500"
-              color={colors.greenAccent[500]}
+              color={colors.primary[100]}
             >
-              VP Fancy Admin
+              NeighborHub Admin
             </Typography>
           </Box>
         </Box>
@@ -154,16 +160,28 @@ const SideBar = () => {
           }}
         >
           <Item
-            title="Manage Team"
+            title="Quản Lý Phương Tiện"
             path="/team"
             colors={colors}
             icon={<PeopleAltOutlined />}
           />
           <Item
-            title="Contacts Information"
+            title="Quản lý Người Dùng"
             path="/contacts"
             colors={colors}
             icon={<ContactsOutlined />}
+          />
+          <Item
+            title="Quản lý Bookings"
+            path="/bookings"
+            colors={colors}
+            icon={<ContactsOutlined />}
+          />
+          <Item
+            title="Quản lý Payment"
+            path="/payment"
+            colors={colors}
+            icon={<PaymentIcon/>}
           />
           <Item
             title="Invoices Balances"

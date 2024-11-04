@@ -25,6 +25,7 @@ import { tokens } from "../../theme";
 import { mockTransactions } from "../../data/mockData";
 
 function Dashboard() {
+
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const isXlDevices = useMediaQuery("(min-width: 1260px)");

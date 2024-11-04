@@ -1,55 +1,39 @@
+import React, { useState, useEffect } from "react";
 import { Box, useTheme } from "@mui/material";
 import { Header } from "../../components";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { mockDataContacts } from "../../data/mockData";
 import { tokens } from "../../theme";
+import axios from "axios";
 
 const Contacts = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
+  const [contacts, setContacts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchContacts = async () => {
+    try {
+      const response = await axios.get("https://gh-neighborhub-569199407036.asia-southeast1.run.app/api/v1/user/viewAll");
+      setContacts(response.data);
+    } catch (error) {
+      console.error("Failed to fetch contacts:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchContacts();
+  }, []);
+
   const columns = [
-    { field: "id", headerName: "ID", flex: 0.5 },
-    { field: "registrarId", headerName: "Registrar ID" },
-    {
-      field: "name",
-      headerName: "Name",
-      flex: 1,
-      cellClassName: "name-column--cell",
-    },
-    {
-      field: "age",
-      headerName: "Age",
-      type: "number",
-      headerAlign: "left",
-      align: "left",
-    },
-    {
-      field: "phone",
-      headerName: "Phone Number",
-      flex: 1,
-    },
-    {
-      field: "email",
-      headerName: "Email",
-      flex: 1,
-    },
-    {
-      field: "address",
-      headerName: "Address",
-      flex: 1,
-    },
-    {
-      field: "city",
-      headerName: "City",
-      flex: 1,
-    },
-    {
-      field: "zipCode",
-      headerName: "Zip Code",
-      flex: 1,
-    },
+    { field: "userId", headerName: "ID", flex: 0.5 },
+    { field: "username", headerName: "Username", flex: 1 },
+    { field: "phone", headerName: "Phone Number", flex: 1 },
+    { field: "email", headerName: "Email", flex: 1 },
   ];
+
   return (
     <Box m="20px">
       <Header
@@ -93,8 +77,10 @@ const Contacts = () => {
         }}
       >
         <DataGrid
-          rows={mockDataContacts}
+          rows={contacts}
           columns={columns}
+          loading={loading}
+          getRowId={(row) => row.userId}
           components={{ Toolbar: GridToolbar }}
           initialState={{
             pagination: {
