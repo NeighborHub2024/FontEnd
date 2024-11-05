@@ -23,14 +23,53 @@ import {
 } from "@mui/icons-material";
 import { tokens } from "../../theme";
 import { mockTransactions } from "../../data/mockData";
+import { useEffect, useState } from "react";
+import api from "../../config/axios";
 
 function Dashboard() {
-
+  const [totalBookings, setTotalBookings] = useState(0);
+  const [totalUser, setTotalUser] = useState(0);
+  const [totalPayment, setTotalPayment] = useState(0);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const isXlDevices = useMediaQuery("(min-width: 1260px)");
   const isMdDevices = useMediaQuery("(min-width: 724px)");
   const isXsDevices = useMediaQuery("(max-width: 436px)");
+
+  const fetchBookings = async () => {
+    try {
+      const response = await api.get('/booking/viewAllBooking');
+      console.log(response.data);
+      setTotalBookings(response.data.length);
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+    }
+  };
+
+  const fetchContacts = async () => {
+    try {
+      const response = await api.get("/user/viewAll");
+      setTotalUser(response.data.length);
+    } catch (error) {
+      console.error("Failed to fetch contacts:", error);
+    }
+  };
+
+  const fetchPayments = async () => {
+    try {
+      const response = await api.get("/payment/viewAllPayment");
+      setTotalPayment(response.data.filter((p) => p.paymentStatus === "isPaid").map((p) => p.actualCost).reduce((a, b) => a + b, 0));
+    } catch (error) {
+      console.error("Failed to fetch contacts:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchBookings();
+    fetchContacts();
+    fetchPayments();
+  }, []);
+
   return (
     <Box m="20px">
       <Box display="flex" justifyContent="space-between">
@@ -81,10 +120,10 @@ function Dashboard() {
           justifyContent="center"
         >
           <StatBox
-            title="11,361"
-            subtitle="Email Sent"
-            progress="0.75"
-            increase="+14%"
+            title={totalBookings}
+            subtitle="Total Bookings"
+            // progress="0.75"
+            // increase="+14%"
             icon={
               <Email
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
@@ -100,10 +139,10 @@ function Dashboard() {
           justifyContent="center"
         >
           <StatBox
-            title="431,225"
-            subtitle="Sales Obtained"
-            progress="0.50"
-            increase="+21%"
+            title={totalPayment}
+            subtitle="Total Payments"
+            // progress="0.50"
+            // increase="+21%"
             icon={
               <PointOfSale
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
@@ -119,31 +158,12 @@ function Dashboard() {
           justifyContent="center"
         >
           <StatBox
-            title="32,441"
-            subtitle="New Clients"
-            progress="0.30"
-            increase="+5%"
+            title={totalUser}
+            subtitle="Total Clients"
+            // progress="0.30"
+            // increase="+5%"
             icon={
               <PersonAdd
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-              />
-            }
-          />
-        </Box>
-        <Box
-          gridColumn="span 3"
-          backgroundColor={colors.primary[400]}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <StatBox
-            title="1,325,134"
-            subtitle="Traffic Received"
-            progress="0.80"
-            increase="+43%"
-            icon={
-              <Traffic
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
               />
             }

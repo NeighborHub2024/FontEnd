@@ -15,9 +15,9 @@ const StatBox = ({ title, subtitle, icon, progress, increase }) => {
             {title}
           </Typography>
         </Box>
-        <Box>
+        {/* <Box>
           <ProgressCircle progress={progress} />
-        </Box>
+        </Box> */}
       </Box>
       <Box display="flex" justifyContent="space-between" mt="2px">
         <Typography variant="h5" color={colors.greenAccent[500]}>

@@ -123,49 +123,49 @@ const Bookings = () => {
         {selectedRegistration && (
           <Row gutter={[16, 16]}>
             <Col span={12}>
-              <Typography.Text strong>License Plate:</Typography.Text>
+              <Typography.Text strong>License Plate: </Typography.Text>
               <Typography.Text>{selectedRegistration.registration.licensePlate}</Typography.Text>
               <br />
-              <Typography.Text strong>Vehicle Type:</Typography.Text>
+              <Typography.Text strong>Vehicle Type: </Typography.Text>
               <Typography.Text>{selectedRegistration.registration.vehicleType}</Typography.Text>
               <br />
-              <Typography.Text strong>Driver's License:</Typography.Text>
+              <Typography.Text strong>Driver's License: </Typography.Text>
               <Typography.Text>{selectedRegistration.registration.driversLicenseNumber}</Typography.Text>
               <br />
-              <Typography.Text strong>Owner Name:</Typography.Text>
+              <Typography.Text strong>Owner Name: </Typography.Text>
               <Typography.Text>{selectedRegistration.registration.driver.username}</Typography.Text>
             </Col>
             <Col span={12}>
-              <Typography.Text strong>Owner Phone:</Typography.Text>
+              <Typography.Text strong>Owner Phone: </Typography.Text>
               <Typography.Text>{selectedRegistration.registration.driver.phone}</Typography.Text>
               <br />
-              <Typography.Text strong>Owner Email:</Typography.Text>
+              <Typography.Text strong>Owner Email: </Typography.Text>
               <Typography.Text>{selectedRegistration.registration.driver.email}</Typography.Text>
               <br />
-              <Typography.Text strong>Average Rating:</Typography.Text>
+              <Typography.Text strong>Average Rating: </Typography.Text>
               <Typography.Text>{selectedRegistration.registration.driver.averageRating}</Typography.Text>
               <br />
-              <Typography.Text strong>Health Check Date:</Typography.Text>
+              <Typography.Text strong>Health Check Date: </Typography.Text>
               <Typography.Text>{selectedRegistration.registration.healthCheckDay}</Typography.Text>
             </Col>
             <Col span={12}>
-              <Typography.Text strong>User Booking:</Typography.Text>
+              <Typography.Text strong>User Booking: </Typography.Text>
               <Typography.Text>{selectedRegistration.user.username}</Typography.Text>
               <br />
-              <Typography.Text strong>Phone:</Typography.Text>
+              <Typography.Text strong>Phone: </Typography.Text>
               <Typography.Text>{selectedRegistration.user.phone}</Typography.Text>
               <br />
-              <Typography.Text strong>Mail:</Typography.Text>
+              <Typography.Text strong>Mail: </Typography.Text>
               <Typography.Text>{selectedRegistration.user.email}</Typography.Text>
             </Col>
             <Col span={12}>
-              <Typography.Text strong>Pickup Location:</Typography.Text>
+              <Typography.Text strong>Pickup Location: </Typography.Text>
               <Typography.Text>{selectedRegistration.pickupLocation}</Typography.Text>
               <br />
-              <Typography.Text strong>Drop Off Location:</Typography.Text>
+              <Typography.Text strong>Drop Off Location: </Typography.Text>
               <Typography.Text>{selectedRegistration.dropoffLocation}</Typography.Text>
               <br />
-              <Typography.Text strong>Pickup Time:</Typography.Text>
+              <Typography.Text strong>Pickup Time: </Typography.Text>
               <Typography.Text>{formatDateTime(selectedRegistration.pickupTime)}</Typography.Text>
             </Col>
           </Row>

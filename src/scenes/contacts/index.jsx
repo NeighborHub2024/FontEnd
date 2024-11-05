@@ -4,6 +4,7 @@ import { Header } from "../../components";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import axios from "axios";
+import api from "../../config/axios";
 
 const Contacts = () => {
   const theme = useTheme();
@@ -14,7 +15,7 @@ const Contacts = () => {
 
   const fetchContacts = async () => {
     try {
-      const response = await axios.get("https://gh-neighborhub-569199407036.asia-southeast1.run.app/api/v1/user/viewAll");
+      const response = await api.get("/user/viewAll");
       setContacts(response.data);
     } catch (error) {
       console.error("Failed to fetch contacts:", error);
