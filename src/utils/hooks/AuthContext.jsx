@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  const login = async (identifier, password) => {
+   const login = async (identifier, password) => {
     try {
       const response = await api.post('/auth/login', { phoneOrEmail: identifier, password });
       if(response.status === 200) {

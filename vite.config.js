@@ -15,7 +15,4 @@ export default defineConfig({
       ],
     }),
   ],
-  sever: {
-    host: true
-  }
 });

@@ -2,7 +2,7 @@
 FROM node:18.17.1
 
 # Set the working directory inside the container
-WORKDIR /react-admin-dashboard
+WORKDIR /app
 
 # Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Expose the port the app runs on
-EXPOSE 5176
+EXPOSE 5173
 
 # Start the app in development mode
 CMD ["npm", "run", "dev"]
