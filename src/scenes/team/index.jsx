@@ -39,8 +39,8 @@ const Team = () => {
   const columns = [
     {
       title: "STT",
-      key: "index",
-      render: (text, record, index) => index + 1, // Show serial number
+      dataIndex: "registrationId",
+      key: "registrationId",
     },
     {
       title: "Biển số xe",
@@ -73,7 +73,7 @@ const Team = () => {
       dataIndex: "healthCheckDay",
       key: "healthCheckDay",
     },
-    {
+    { 
       title: "Trạng thái",
       key: "status",
       render: (_, { status }) => {

@@ -5,25 +5,27 @@ import axios from 'axios';
 // import { setTokens } from '@/core/store/auth/authenticate';
 
 const api = axios.create({
-  baseURL: 'https://gh-neighborhub-569199407036.asia-southeast1.run.app/api/v1',
+  baseURL: 'http://localhost:8080/api/v1',
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json',
   },
 });
 
-// api.interceptors.request.use(
-//   (config) => {
-//     const token = localStorage.getItem('access_token');
-//     if (token) {
-//       config.headers.Authorization = `Bearer ${token}`;
-//     }
-//     return config;
-//   },
-//   (error) => {
-//     return Promise.reject(error);
-//   }
-// );
+
+
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 // const refreshToken = async () => {
 //   const refresh = localStorage.getItem('refreshToken');

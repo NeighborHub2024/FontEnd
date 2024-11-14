@@ -1,3 +1,4 @@
+import axios from "axios";
 import api from "../config/axios";
 
 export const getRegistrationForms = async () => {
@@ -15,7 +16,7 @@ export const getRegistrationForms = async () => {
 
   export const acceptRegistrationForm = async (registrationId) => {
     try {
-      const response = await api.put(`registrationForm/acceptRegisForm/${registrationId}`)
+      const response = await api.put(`/registrationForm/acceptRegisForm/${registrationId}`);
   
       if (!response.status === 200) {
         throw new Error('Failed to accept registration form');

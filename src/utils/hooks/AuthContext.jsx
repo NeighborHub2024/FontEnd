@@ -20,6 +20,9 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('user', JSON.stringify(userInfo));
         localStorage.setItem('access_token', access_token);
         setUser(userInfo);  // Set the user state
+        if(userInfo.role.toLowerCase() === 'admin') {
+          window.location.href = '/admin';
+        }
       }
       return response; // Return response for further handling if needed
     } catch (error) {
@@ -38,8 +41,14 @@ export const AuthProvider = ({ children }) => {
     return !!user || !!localStorage.getItem('user');
   };
 
+  const token = () => localStorage.getItem('access_token');
+
+  const isRole = () => {
+    return user.role.toLowerCase();
+  } 
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ user, token, isRole, login, logout, isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   );
