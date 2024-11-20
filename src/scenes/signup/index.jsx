@@ -2,21 +2,16 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import MuiCard from '@mui/material/Card';
-import Checkbox from '@mui/material/Checkbox';
 import FormLabel from '@mui/material/FormLabel';
 import FormControl from '@mui/material/FormControl';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Link from '@mui/material/Link';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-
 import { styled } from '@mui/material/styles';
-
-import ForgotPassword from './components/ForgotPassword';
 import { toast } from 'react-toastify';
 import { CircularProgress } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../utils/hooks/AuthContext';
+import { useLocation, useNavigate } from 'react-router-dom';
+import Link from '@mui/material/Link';
+import { checkPhone, register } from '../../services/accountService';
 
 
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -37,77 +32,83 @@ const Card = styled(MuiCard)(({ theme }) => ({
   }),
 }));
 
-const LoginPage = () => {
+const SignUp = () => {
+  const location = useLocation();
+  const phoneState = location.state?.phone || '';
   const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
-  const [open, setOpen] = React.useState(false);
+  const [usernameError, setUsernameError] = React.useState(false);
+  const [usernameErrorMessage, setUsernameErrorMessage] = React.useState('');
   const [loading, setLoading] = React.useState(false); // Loading state
-  const {login} = useAuth();
-
   const navigate = useNavigate();
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
 
   const handleSubmit = async (event) => {
     event.preventDefault(); // Prevent form submission before validation
 
     const isValid = validateInputs();
     if (!isValid) return;
-    const emailOrPhoneValue = document.getElementById('email-or-phone').value;
+
+    const emailValue = document.getElementById('email').value;
     const passwordValue = document.getElementById('password').value;
+    const usernameValue = document.getElementById('username').value;
 
     setLoading(true); // Set loading to true before API call
 
     try {
-      // Pass emailOrPhone and password to the login function
-      const response = await login(emailOrPhoneValue, passwordValue);
-      if (response.status === 200) {
-        toast.success('Login successful!'); // Show success message
-        navigate('/'); // Navigate to the home page on successful login
+      const response = await register({ email: emailValue, phone: phoneState, password: passwordValue, username: usernameValue });
+      console.log(response);
+      if (response.data === "User registered successfully!") {
+        toast.success('Đăng ký thành công!'); // Show success message
+        navigate('/login'); // Navigate to the login page after successful registration
+      } else {
+        toast.error('Đăng ký thất bại. Vui lòng thử lại.');
       }
     } catch (error) {
-      console.error('Login failed:', error);
-      toast.error('Login failed. Please check your credentials.'); // Show error message
+      console.error('Registration failed:', error);
+      toast.error('Đăng ký thất bại. Vui lòng thử lại.'); // Show error message
     } finally {
       setLoading(false); // Reset loading state after API call
     }
   };
 
   const validateInputs = () => {
-    const emailOrPhone = document.getElementById('email-or-phone');
+    const email = document.getElementById('email');
     const password = document.getElementById('password');
+    const username = document.getElementById('username');
 
     let isValid = true;
-    const emailOrPhoneValue = emailOrPhone.value;
 
-    // Validate email or phone format
-    const isValidEmail = /\S+@\S+\.\S+/.test(emailOrPhoneValue);
-    const isValidPhone = /^[0-9]{10}$/.test(emailOrPhoneValue);
-
-    if (!emailOrPhoneValue || (!isValidEmail && !isValidPhone)) {
+    // Validate email format
+    const isValidEmail = /\S+@\S+\.\S+/.test(email.value);
+    if (!email.value || !isValidEmail) {
       setEmailError(true);
-      setEmailErrorMessage('Please enter a valid email or phone number.');
+      setEmailErrorMessage('Vui lòng nhập mail đúng!.');
       isValid = false;
     } else {
       setEmailError(false);
       setEmailErrorMessage('');
     }
 
+    // Validate password length
     if (!password.value || password.value.length < 6) {
       setPasswordError(true);
-      setPasswordErrorMessage('Password must be at least 6 characters long.');
+      setPasswordErrorMessage('Password ít nhất 6 ký tự.');
       isValid = false;
     } else {
       setPasswordError(false);
       setPasswordErrorMessage('');
+    }
+
+    // Validate username (non-empty)
+    if (!username.value) {
+      setUsernameError(true);
+      setUsernameErrorMessage('Username là Họ Và Tên của bạn.');
+      isValid = false;
+    } else {
+      setUsernameError(false);
+      setUsernameErrorMessage('');
     }
 
     return isValid;
@@ -117,19 +118,18 @@ const LoginPage = () => {
     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '97vh' }}>
       <Card variant="outlined">
         <Typography component="h1" variant="h4" sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)' }}>
-          Đăng Nhập
+          Register
         </Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ display: 'flex', flexDirection: 'column', width: '100%', gap: 2 }}>
           <FormControl>
-            <FormLabel htmlFor="email-or-phone">Email hoặc SĐT</FormLabel>
+            <FormLabel htmlFor="email">Email</FormLabel>
             <TextField
               error={emailError}
               helperText={emailErrorMessage}
-              id="email-or-phone"
-              name="email-or-phone"
-              placeholder="your@email.com / 0123456789"
+              id="email"
+              name="email"
+              placeholder="youremail@example.com"
               autoComplete="email"
-              autoFocus
               required
               fullWidth
               variant="outlined"
@@ -137,31 +137,55 @@ const LoginPage = () => {
             />
           </FormControl>
           <FormControl>
+            <FormLabel htmlFor="phone">SĐT</FormLabel>
+            <TextField
+              id="phone"
+              name="phone"
+              placeholder={phoneState}
+              autoComplete="tel"
+              required
+              fullWidth
+              variant="outlined"
+              color={'primary'}
+            />
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor="username">Họ và Tên</FormLabel>
+            <TextField
+              error={usernameError}
+              helperText={usernameErrorMessage}
+              id="username"
+              name="username"
+              placeholder="Họ và Tên"
+              required
+              fullWidth
+              variant="outlined"
+              color={usernameError ? 'error' : 'primary'}
+            />
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor="password">Password</FormLabel>
             <TextField
               error={passwordError}
               helperText={passwordErrorMessage}
+              id="password"
               name="password"
               placeholder="••••••"
               type="password"
-              id="password"
-              autoComplete="current-password"
-              autoFocus
               required
               fullWidth
               variant="outlined"
               color={passwordError ? 'error' : 'primary'}
             />
           </FormControl>
-          <FormControlLabel control={<Checkbox value="remember" color="primary" />} label="Remember me" />
-          <ForgotPassword open={open} handleClose={handleClose} />
           <Button type="submit" fullWidth variant="contained">
-            {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Đăng Nhập'}
+            {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Register'}
           </Button>
           <Typography sx={{ textAlign: 'center' }}>
-            Bạn chưa có tài khoản?{' '}
+            Bạn đã có tài khoản?{' '}
             <span>
-              <Link href="/register" variant="body2" sx={{ alignSelf: 'center' }}>
-                Đăng Ký
+              <Link href="/login" variant="body2" sx={{ alignSelf: 'center' }}>
+                Đăng Nhập
               </Link>
             </span>
           </Typography>
@@ -171,4 +195,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default SignUp;

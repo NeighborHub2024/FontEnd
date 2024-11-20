@@ -1,9 +1,9 @@
 import React from 'react';
-import { Container, Typography, Box, Link, List, ListItem, ListItemText } from '@mui/material';
+import { Container, Typography, Box, Link } from '@mui/material';
 
 const TermsAndConditions = () => {
   return (
-    <Container maxWidth="md" sx={{ backgroundColor: '#fff', borderRadius: 2, padding: 3, boxShadow: 3, margin: 12 }}>
+    <Container maxWidth="md" sx={{ backgroundColor: '#fff', borderRadius: 2, padding: 3, boxShadow: 3, marginTop: 6, marginBottom: 6 }}>
       <Typography variant="h3" align="center" color="primary" gutterBottom>
         Terms and Conditions
       </Typography>

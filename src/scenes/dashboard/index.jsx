@@ -25,11 +25,14 @@ import { tokens } from "../../theme";
 import { mockTransactions } from "../../data/mockData";
 import { useEffect, useState } from "react";
 import api from "../../config/axios";
+import { formattedAmount } from "../../utils/convert";
 
 function Dashboard() {
   const [totalBookings, setTotalBookings] = useState(0);
   const [totalUser, setTotalUser] = useState(0);
   const [totalPayment, setTotalPayment] = useState(0);
+  const [transaction, setTransaction] = useState([]);
+  const [totalTransactionAmount, setTotalTransactionAmount] = useState(0);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const isXlDevices = useMediaQuery("(min-width: 1260px)");
@@ -48,8 +51,8 @@ function Dashboard() {
 
   const fetchContacts = async () => {
     try {
-      const response = await api.get("/user/viewAll");
-      setTotalUser(response.data.length);
+      const response = await api.get("/user/getTotalClients");
+      setTotalUser(response.data);
     } catch (error) {
       console.error("Failed to fetch contacts:", error);
     }
@@ -57,8 +60,11 @@ function Dashboard() {
 
   const fetchPayments = async () => {
     try {
-      const response = await api.get("/payment/viewAllPayment");
-      setTotalPayment(response.data.filter((p) => p.paymentStatus === "isPaid").map((p) => p.actualCost).reduce((a, b) => a + b, 0));
+      const response = await api.get("/transaction/viewAllTransaction");
+      const sum = response.data.filter(t => t.status === "Completed").reduce((a, b) => a + b.transactionAmount, 0)
+      setTotalTransactionAmount((sum));
+      setTotalPayment(response.data.filter(t => t.status === "Completed").length);
+      setTransaction(response.data);
     } catch (error) {
       console.error("Failed to fetch contacts:", error);
     }
@@ -122,8 +128,6 @@ function Dashboard() {
           <StatBox
             title={totalBookings}
             subtitle="Total Bookings"
-            // progress="0.75"
-            // increase="+14%"
             icon={
               <Email
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
@@ -140,9 +144,7 @@ function Dashboard() {
         >
           <StatBox
             title={totalPayment}
-            subtitle="Total Payments"
-            // progress="0.50"
-            // increase="+21%"
+            subtitle="Total Transaction Completed"
             icon={
               <PointOfSale
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
@@ -160,8 +162,6 @@ function Dashboard() {
           <StatBox
             title={totalUser}
             subtitle="Total Clients"
-            // progress="0.30"
-            // increase="+5%"
             icon={
               <PersonAdd
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
@@ -172,50 +172,9 @@ function Dashboard() {
 
         {/* ---------------- Row 2 ---------------- */}
 
-        {/* Line Chart */}
-        <Box
-          gridColumn={
-            isXlDevices ? "span 8" : isMdDevices ? "span 6" : "span 3"
-          }
-          gridRow="span 2"
-          bgcolor={colors.primary[400]}
-        >
-          <Box
-            mt="25px"
-            px="30px"
-            display="flex"
-            justifyContent="space-between"
-          >
-            <Box>
-              <Typography
-                variant="h5"
-                fontWeight="600"
-                color={colors.gray[100]}
-              >
-                Revenue Generated
-              </Typography>
-              <Typography
-                variant="h5"
-                fontWeight="bold"
-                color={colors.greenAccent[500]}
-              >
-                $59,342.32
-              </Typography>
-            </Box>
-            <IconButton>
-              <DownloadOutlined
-                sx={{ fontSize: "26px", color: colors.greenAccent[500] }}
-              />
-            </IconButton>
-          </Box>
-          <Box height="250px" mt="-20px">
-            <LineChart isDashboard={true} />
-          </Box>
-        </Box>
-
         {/* Transaction Data */}
         <Box
-          gridColumn={isXlDevices ? "span 4" : "span 3"}
+          gridColumn={isXlDevices ? "span 6" : "span 4"}
           gridRow="span 2"
           bgcolor={colors.primary[400]}
           overflow="auto"
@@ -226,14 +185,14 @@ function Dashboard() {
             </Typography>
           </Box>
 
-          {mockTransactions.map((transaction, index) => (
+          {transaction.sort((a, b) => b.transactionId - a.transactionId).map((transaction, index) => (
             <Box
-              key={`${transaction.txId}-${index}`}
+              key={`${transaction.transactionId}-${index}`}
               display="flex"
               alignItems="center"
               justifyContent="space-between"
               borderBottom={`4px solid ${colors.primary[500]}`}
-              p="15px"
+              p="20px"
             >
               <Box>
                 <Typography
@@ -241,21 +200,21 @@ function Dashboard() {
                   variant="h5"
                   fontWeight="600"
                 >
-                  {transaction.txId}
+                  {'ID:' + transaction.transactionId + '- Sđt: ' + transaction.user.phone}
                 </Typography>
                 <Typography color={colors.gray[100]}>
-                  {transaction.user}
+                  {transaction.user.username}
                 </Typography>
               </Box>
               <Typography color={colors.gray[100]}>
-                {transaction.date}
+                {transaction.details}
               </Typography>
               <Box
                 bgcolor={colors.greenAccent[500]}
-                p="5px 10px"
+                p="8px 12px"
                 borderRadius="4px"
               >
-                ${transaction.cost}
+                {formattedAmount(transaction.transactionAmount)} VNĐ
               </Box>
             </Box>
           ))}
@@ -263,7 +222,7 @@ function Dashboard() {
 
         {/* Revenue Details */}
         <Box
-          gridColumn={isXlDevices ? "span 4" : "span 3"}
+          gridColumn={isXlDevices ? "span 3" : "span 2"}
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
           p="30px"
@@ -277,48 +236,24 @@ function Dashboard() {
             alignItems="center"
             mt="25px"
           >
-            <ProgressCircle size="125" />
+            <ProgressCircle progress={totalTransactionAmount/10000000} size="125" />
             <Typography
               textAlign="center"
               variant="h5"
               color={colors.greenAccent[500]}
               sx={{ mt: "15px" }}
             >
-              $48,352 revenue generated
+              {formattedAmount(totalTransactionAmount)} VNĐ revenue generated
             </Typography>
             <Typography textAlign="center">
-              Includes extra misc expenditures and costs
+              This include all the transaction Completed. Target 10.000.000 VNĐ
             </Typography>
-          </Box>
-        </Box>
-
-        {/* Bar Chart */}
-        <Box
-          gridColumn={isXlDevices ? "span 4" : "span 3"}
-          gridRow="span 2"
-          backgroundColor={colors.primary[400]}
-        >
-          <Typography
-            variant="h5"
-            fontWeight="600"
-            sx={{ p: "30px 30px 0 30px" }}
-          >
-            Sales Quantity
-          </Typography>
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            height="250px"
-            mt="-20px"
-          >
-            <BarChart isDashboard={true} />
           </Box>
         </Box>
 
         {/* Geography Chart */}
         <Box
-          gridColumn={isXlDevices ? "span 4" : "span 3"}
+          gridColumn={isXlDevices ? "span 3" : "span 2"}
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
           padding="30px"

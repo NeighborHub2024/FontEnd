@@ -5,7 +5,7 @@ import axios from 'axios';
 // import { setTokens } from '@/core/store/auth/authenticate';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api/v1',
+  baseURL: 'https://gh-neighborhub-569199407036.asia-southeast1.run.app/api/v1',
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json',

@@ -31,22 +31,33 @@ import PrivacyPolicy from "./scenes/auth/users/privacy/Privacy";
 import TermsAndConditions from "./scenes/auth/users/terms/Terms";
 import Profile from "./scenes/auth/users/profile/Profile";
 import PaymentSuccessPage from "./scenes/auth/users/payments/PaymentSuccess";
+import PaymentCancel from "./scenes/auth/users/payments/PaymentCancel";
+import AddPoint from "./scenes/auth/users/AddPoint/AddPoint";
+import SignUp from "./scenes/signup";
+import SendOTP from "./scenes/signup/components/SendOTP";
+import VerifyOTP from "./scenes/signup/components/VerifyOTP";
 
 const AppRouter = () => {
   return (
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/logout" element={<LogoutPage />} />
+         
           <Route path="/" element={<Users />}>
             <Route path="" element={<LandingPage />} />
+            <Route path="login" element={<LoginPage />} />
+            <Route path="register" element={<SendOTP />} />
+            <Route path="signup" element={<SignUp />} />
+            <Route path="verify-otp" element={<VerifyOTP />} />
+            <Route path="logout" element={<LogoutPage />} />
             <Route path="privacy" element={<PrivacyPolicy />} />
             <Route path="terms" element={<TermsAndConditions />} />
+            <Route path="add-point" element={<AddPoint />} />
           </Route>
           <Route path="/user" element={<ProtectedRoute allowedRoles={["user"]}><Users /></ProtectedRoute>} >
             <Route path="payments" element={<Payments />} />
             <Route path="payment-success/:userId" element={<PaymentSuccessPage />} />
+            <Route path="payment-cancel/:orderCode" element={<PaymentCancel />} />
             <Route path="profile" element={<Profile />} />
           </Route>
           <Route path="admin" element={<ProtectedRoute allowedRoles={["admin"]}><App /></ProtectedRoute>}>

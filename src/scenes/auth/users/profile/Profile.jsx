@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container,
   Typography,
@@ -13,23 +13,46 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
+  CircularProgress,
 } from '@mui/material';
 import { useAuth } from '../../../../utils/hooks/AuthContext';
 import api from '../../../../config/axios';
 import CryptoJS from 'crypto-js';
 import axios from 'axios';
 import { addTransaction } from '../../../../services/accountService';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { payOsService } from '../../../../services/payOsService';
 
 const generateSignature = (dataString, key) => {
   return CryptoJS.HmacSHA256(dataString, key).toString(CryptoJS.enc.Hex);
 };
 
+const generateOrderCode = () => {
+  return Math.floor(Date.now() / 1000); // Timestamp in seconds
+};
+
 const Profile = () => {
-  const { user, token } = useAuth();
-  const [userInfo, setUserInfo] = useState(user);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [userInfo, setUserInfo] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [amount, setAmount] = useState(2000);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  const fetchUser = async () => {
+    try {
+      const response = await api.get(`/user/getUser/${user.userId}`);
+      setUserInfo(response.data);
+    } catch (error) {
+      console.error('Error fetching user:', error);
+    }
+  };
 
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => {
@@ -38,22 +61,17 @@ const Profile = () => {
     setError('');
   };
 
-  const generateOrderCode = () => {
-    return Math.floor(Date.now() / 1000); // Timestamp in seconds
-  };
-
   const handleAddPoint = async () => {
     if (amount <= 0) {
       setError('Amount must be greater than 0');
       return;
     }
     setError('');
-
-    const expirationTimestamp = Math.floor(Date.now() / 1000) + 5 * 60;
-    const cancelUrl = "http://localhost:5173/user/payment-success";
-    const description = `userID-${userInfo.userId}`;
     const orderCode = generateOrderCode();
-    const returnUrl = `http://localhost:5173/user/payment-success/${userInfo.userId}`;
+    const expirationTimestamp = Math.floor(Date.now() / 1000) + 5 * 60;
+    const cancelUrl = `http://34.126.80.91:5173/user/payment-cancel/${orderCode}`;
+    const description = `userID-${userInfo.userId}`;
+    const returnUrl = `http://34.126.80.91:5173/user/payment-success/${userInfo.userId}`;
     
     // Create data string for signature
     const dataString = `amount=${amount}&cancelUrl=${cancelUrl}&description=${description}&orderCode=${orderCode}&returnUrl=${returnUrl}`;
@@ -65,6 +83,7 @@ const Profile = () => {
     const signature = generateSignature(dataString, CHECKSUM_KEY);
 
     try {
+      setIsLoading(true);
       // Define the parameters
       const params = {
         orderCode: orderCode.toString(),          
@@ -72,34 +91,33 @@ const Profile = () => {
         userId: userInfo.userId  
       };
 
-      console.log(params);
-
-        const transaction = await addTransaction(params);
-        if(transaction.data.code === 200) {
-          const response = await axios.post('https://api-merchant.payos.vn/v2/payment-requests', {
+      const requestBodyPayOs = {
           orderCode,
-          amount: amount,
+          amount,
           description,
           buyerName: userInfo.username,
           buyerEmail: userInfo.email,
           buyerPhone: userInfo.phone,
-          buyerAddress: "Không có",
+          buyerAddress: 'Không có',
           cancelUrl,
           returnUrl,
           expiredAt: expirationTimestamp,
           signature,
-        }, {
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-            'x-client-id': 'ac7221c8-dee5-4b59-826f-ee91f20e1421',
-            'x-api-key': '406a04cc-3e36-4569-a810-9db046de527a'
-          },
-        } );
+        }
+
+      console.log(params);
+
+      const transaction = await addTransaction(params);
+      if (transaction.data.code === 200) {
+        const response = await payOsService.createPayment(requestBodyPayOs);
         console.log(response.data);
+        if (response.data.data.checkoutUrl) {
+          window.location.href = response.data.data.checkoutUrl;
+        }
       }
       handleCloseModal();
     } catch (error) {
+      toast.error("Có Lỗi Xảy Ra! Hãy đăng xuất và đăng nhập lại nhé");
       console.error('Error adding points:', error);
     }
   };
@@ -107,7 +125,7 @@ const Profile = () => {
   const handleAmountChange = (e) => {
     const value = parseFloat(e.target.value);
     setAmount(value);
-    setError(value < 2000? 'Điểm phải trên hoặc bằng 2000' : '');
+    setError(value < 2000 ? 'Điểm phải trên hoặc bằng 2000' : '');
   };
 
   if (!userInfo) {
@@ -162,7 +180,7 @@ const Profile = () => {
           <TextField
             autoFocus
             margin="dense"
-            label="Amount"
+            label="Điểm"
             type="number"
             fullWidth
             variant="outlined"
@@ -176,9 +194,9 @@ const Profile = () => {
           <Button onClick={handleCloseModal} color="secondary">
             Hủy
           </Button>
-          <Button onClick={handleAddPoint} color="primary" disabled={Boolean(error)}>
+          {isLoading ? <Button disabled color='primary'><CircularProgress size={24} /></Button> : <Button onClick={handleAddPoint} color="primary" disabled={Boolean(error)}>
             Nạp Điểm
-          </Button>
+          </Button>}
         </DialogActions>
       </Dialog>
     </Container>

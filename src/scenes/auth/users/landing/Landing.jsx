@@ -1,19 +1,20 @@
 import React from 'react';
 import { Box, Button, Typography, Container } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { FaCar, FaUsers, FaShieldAlt } from 'react-icons/fa'; // Example icons for features
+import { FaCar, FaUsers, FaShieldAlt } from 'react-icons/fa'; // Biểu tượng ví dụ cho các tính năng
 import landingImage from "../../../../assets/images/ride-sharing-image.jpg";
-
+import { useAuth } from '../../../../utils/hooks/AuthContext';
 
 const LandingPage = () => {
+  const {isAuthenticated} = useAuth();
   return (
     <Box sx={{ width: '100%' }}>
-      {/* Hero Section */}
+      {/* Phần Hero */}
       <Box
         sx={{
           width: '100%',
           height: '100vh',
-          backgroundImage: `url(${landingImage})`, // Your image path
+          backgroundImage: `url(${landingImage})`, // Đường dẫn ảnh của bạn
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           display: 'flex',
@@ -30,25 +31,31 @@ const LandingPage = () => {
             left: 0,
             width: '100%',
             height: '100%',
-            backgroundColor: 'rgba(0, 0, 0, 0.4)', // Semi-transparent black overlay
+            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Lớp phủ tối giúp văn bản dễ nhìn hơn
             zIndex: 1,
           }}
         />
-        <Box sx={{ maxWidth: '600px',
-            textAlign: 'center',
-            position: 'relative', // To ensure the content stays above the overlay
-            zIndex: 2,
-            color: 'white', }}>
-          <Typography variant="h2" sx={{ fontWeight: 'bold' }}>
-            Share Rides, Save Time, Save Money
+        <Box sx={{
+          maxWidth: '600px',
+          textAlign: 'center',
+          position: 'relative',
+          zIndex: 2,
+          color: 'white',
+          padding: { xs: '2rem', sm: '3rem' }, // Khoảng cách đáp ứng
+        }}>
+          <Typography variant="h2" sx={{
+            fontWeight: 'bold',
+            fontSize: { xs: '2rem', sm: '3rem', md: '4rem' }, // Kích thước phông chữ đáp ứng
+          }}>
+            Chia Sẻ Chuyến Đi, Tiết Kiệm Thời Gian, Tiết Kiệm Chi Phí
           </Typography>
           <Typography variant="h5" sx={{ marginTop: 2 }}>
-            Connect with neighbors for affordable, reliable, and eco-friendly rides.
+            Kết nối với hàng xóm để có chuyến đi tiết kiệm, đáng tin cậy và thân thiện với môi trường.
           </Typography>
           <Box sx={{ marginTop: '2rem' }}>
-            <Link to="/signup">
-              <Button 
-                variant="contained" 
+            <Link to="https://drive.google.com/uc?export=download&id=1hv1DNG1GMo-WYnqszCns5wphVPxUr618">
+              <Button
+                variant="contained"
                 sx={{
                   backgroundColor: '#FF7F50',
                   padding: '1rem 3rem',
@@ -60,22 +67,22 @@ const LandingPage = () => {
                   },
                 }}
               >
-                Join Us Now
+                Tải Ngay
               </Button>
             </Link>
           </Box>
         </Box>
       </Box>
 
-      {/* Features Section */}
-      <Container sx={{ padding: '4rem 2rem' }}>
+      {/* Phần Tính Năng */}
+      <Container sx={{ padding: { xs: '2rem', sm: '4rem 2rem' } }}>
         <Typography variant="h3" sx={{ textAlign: 'center', fontWeight: 'bold' }}>
-          Why Choose NeighborHub?
+          Tại Sao Chọn NeighborHub?
         </Typography>
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
+            gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, // Bố cục lưới đáp ứng
             gap: 4,
             marginTop: 4,
             textAlign: 'center',
@@ -96,10 +103,10 @@ const LandingPage = () => {
           >
             <FaCar size={50} color="#FF7F50" />
             <Typography variant="h6" sx={{ marginTop: 2, fontWeight: 'bold' }}>
-              Affordable Rides
+              Chi Phí Hợp Lý
             </Typography>
             <Typography sx={{ marginTop: 1 }}>
-              Get to your destination at a fraction of the cost.
+              Đến đích với chi phí thấp hơn nhiều.
             </Typography>
           </Box>
           <Box
@@ -117,10 +124,10 @@ const LandingPage = () => {
           >
             <FaUsers size={50} color="#FF7F50" />
             <Typography variant="h6" sx={{ marginTop: 2, fontWeight: 'bold' }}>
-              Community-Driven
+              Cộng Đồng Định Hướng
             </Typography>
             <Typography sx={{ marginTop: 1 }}>
-              Share rides with your neighbors and save money.
+              Chia sẻ chuyến đi với hàng xóm và tiết kiệm chi phí.
             </Typography>
           </Box>
           <Box
@@ -138,10 +145,10 @@ const LandingPage = () => {
           >
             <FaShieldAlt size={50} color="#FF7F50" />
             <Typography variant="h6" sx={{ marginTop: 2, fontWeight: 'bold' }}>
-              Safe & Secure
+              An Toàn & Bảo Mật
             </Typography>
             <Typography sx={{ marginTop: 1 }}>
-              Ride with peace of mind knowing safety is our priority.
+              Đi lại an toàn với sự ưu tiên hàng đầu của chúng tôi.
             </Typography>
           </Box>
         </Box>

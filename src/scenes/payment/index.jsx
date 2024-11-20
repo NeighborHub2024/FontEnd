@@ -1,176 +1,107 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Typography, Input, Space, notification, Modal } from 'antd';
+import { Table, Typography, Input, notification, Modal } from 'antd';
 import api from '../../config/axios';
-import {Row, Col } from 'antd';
-
 
 const { Search } = Input;
 
 const Payment = () => {
-  const [payments, setPayments] = useState([]);
-  const [error, setError] = useState(null);
+  const [transactions, setTransactions] = useState([]);
   const [searchText, setSearchText] = useState('');
-  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
-    fetchPayments();
+    fetchTransactions();
   }, []);
 
-  const fetchPayments = async () => {
+  const fetchTransactions = async () => {
     try {
-      const response = await api.get('/payment/viewAllPayment');
-      setPayments(response.data);
+      const response = await api.get('/transaction/viewAllTransaction');
+      setTransactions(response.data);
     } catch (err) {
-      setError('Error fetching payment data');
       notification.error({
         message: 'Error',
-        description: 'Could not fetch payment data. Please try again later.',
+        description: 'Could not fetch transactions. Please try again later.',
       });
     }
   };
 
-  const fetchBookingDetails = async (bookingId) => {
-    try {
-      const response = await api.get(`/booking/getBookingById/${bookingId}`);
-      setSelectedBooking(response.data);
-      setIsModalVisible(true);
-    } catch (err) {
-      notification.error({
-        message: 'Error',
-        description: 'Could not fetch booking details. Please try again later.',
-      });
-    }
+  const handleViewDetails = (transaction) => {
+    setSelectedTransaction(transaction);
+    setIsModalVisible(true);
   };
-
-  // Define columns for the Ant Design table
-  const columns = [
-    {
-      title: 'Booking ID',
-      dataIndex: 'bookingId',
-      sorter: (a, b) => a.bookingId - b.bookingId,
-      render: (text, record) => (
-        <a onClick={() => fetchBookingDetails(record.bookingId)}>{text}</a>
-      ),
-    },
-    {
-      title: 'Payment Amount',
-      dataIndex: 'paymentAmount',
-      sorter: (a, b) => a.paymentAmount - b.paymentAmount,
-      render: (amount) => `${amount.toLocaleString()} VND`,
-    },
-    {
-      title: 'Payment Date',
-      dataIndex: 'paymentDate',
-      sorter: (a, b) => new Date(a.paymentDate) - new Date(b.paymentDate),
-    },
-    {
-      title: 'Payment Status',
-      dataIndex: 'paymentStatus',
-      filters: [
-        { text: 'isPaid', value: 'isPaid' },
-        { text: 'Pending', value: 'Pending' },
-      ],
-      onFilter: (value, record) => record.paymentStatus.includes(value),
-    },
-    {
-      title: 'Description',
-      dataIndex: 'description',
-    },
-    {
-      title: 'Actual Cost',
-      dataIndex: 'actualCost',
-      render: (cost) => `${cost.toLocaleString()} VND`,
-      sorter: (a, b) => a.actualCost - b.actualCost,
-    },
-    {
-      title: 'Actions ',
-      dataIndex: 'actions',
-      render: (text, record) => (
-        <a onClick={() => fetchBookingDetails(record.bookingId)}>View</a>
-      ),
-    },
-  ];
-
-  // Filter payments based on search text
-  const filteredPayments = payments.filter(payment =>
-    payment.description.toLowerCase().includes(searchText.toLowerCase())
-  );
 
   const handleCloseModal = () => {
     setIsModalVisible(false);
-    setSelectedBooking(null);
+    setSelectedTransaction(null);
   };
+
+  const columns = [
+    {
+      title: 'Transaction ID',
+      dataIndex: 'transactionId',
+      sorter: (a, b) => a.transactionId - b.transactionId,
+    },
+    {
+      title: 'Amount',
+      dataIndex: 'transactionAmount',
+      render: (transactionAmount) => `${transactionAmount.toLocaleString()} VND`,
+      sorter: (a, b) => a.transactionAmount - b.transactionAmount,
+    },
+    {
+      title: 'Detail',
+      dataIndex: 'details',
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      filters: [
+        { text: 'Completed', value: 'Completed' },
+        { text: 'Pending', value: 'Pending' },
+      ],
+      onFilter: (value, record) => record.status === value,
+    },
+  ];
+
+  const filteredTransactions = transactions.filter((transaction) =>
+    transaction.transactionId.toString().includes(searchText)
+  );
 
   return (
     <div style={{ padding: '24px' }}>
-      <Typography.Title level={4}>Payment Management</Typography.Title>
+      <Typography.Title style={{color: 'white'}} level={4}>Transaction Management</Typography.Title>
       <Search
-        placeholder="Search by Description"
-        onSearch={value => setSearchText(value)}
+        placeholder="Search by Transaction ID"
+        onSearch={(value) => setSearchText(value)}
         style={{ marginBottom: 16, width: 300 }}
       />
       <Table
         columns={columns}
-        dataSource={filteredPayments}
-        rowKey="bookingId"
+        dataSource={filteredTransactions}
+        rowKey="transactionId"
         pagination={{ pageSize: 10 }}
       />
       <Modal
-        title={`Booking Details - ID: ${selectedBooking?.bookingId}`}
+        title={`Transaction Details - ID: ${selectedTransaction?.transactionId}`}
         visible={isModalVisible}
         onCancel={handleCloseModal}
         footer={null}
       >
-        {selectedBooking && (
-          <div style={{ padding: '24px', border: '1px solid #f0f0f0', borderRadius: '8px', backgroundColor: '#fff' }}>
-        <Typography.Title level={4}>Booking Details</Typography.Title>
-        <Row gutter={[16, 16]}>
-          <Col span={12}>
-          <Typography.Paragraph>
-              <strong>User ID:</strong> {selectedBooking.user.userId}
+        {selectedTransaction && (
+          <div>
+            <Typography.Paragraph>
+              <strong>Transaction ID:</strong> {selectedTransaction.transactionId}
             </Typography.Paragraph>
             <Typography.Paragraph>
-              <strong>User Booking:</strong> {selectedBooking.user.username}
+              <strong>Amount:</strong> {selectedTransaction.amount.toLocaleString()} VND
             </Typography.Paragraph>
             <Typography.Paragraph>
-              <strong>User Phone:</strong> {selectedBooking.user.phone}
+              <strong>Date:</strong> {new Date(selectedTransaction.date).toLocaleString()}
             </Typography.Paragraph>
             <Typography.Paragraph>
-              <strong>Pickup Location:</strong> {selectedBooking.pickupLocation}
+              <strong>Status:</strong> {selectedTransaction.status}
             </Typography.Paragraph>
-            <Typography.Paragraph>
-              <strong>Dropoff Location:</strong> {selectedBooking.dropoffLocation}
-            </Typography.Paragraph>
-            <Typography.Paragraph>
-              <strong>Pickup Time:</strong> {new Date(selectedBooking.pickupTime).toLocaleString()}
-            </Typography.Paragraph>
-            <Typography.Paragraph>
-              <strong>Dropoff Time:</strong> {new Date(selectedBooking.dropoffTime).toLocaleString()}
-            </Typography.Paragraph>
-          </Col>
-          <Col span={12}>
-          <Typography.Paragraph>
-              <strong>Driver ID:</strong> {selectedBooking.registration.driver.driverId}
-            </Typography.Paragraph>
-            <Typography.Paragraph>
-              <strong>Driver:</strong> {selectedBooking.registration.driver.username}
-            </Typography.Paragraph>
-            <Typography.Paragraph>
-              <strong>Vehicle Type:</strong> {selectedBooking.registration.vehicleType}
-            </Typography.Paragraph>
-            <Typography.Paragraph>
-              <strong>Distance:</strong> {selectedBooking.distance} km
-            </Typography.Paragraph>
-            <Typography.Paragraph>
-              <strong>Payment Amount:</strong> {selectedBooking.amount.toLocaleString()} VND
-            </Typography.Paragraph>
-            <Typography.Paragraph>
-              <strong>Booking Status:</strong> {selectedBooking.status === "0" ? "Pending" : "Completed"}
-            </Typography.Paragraph>
-          </Col>
-        </Row>
-      </div>
+          </div>
         )}
       </Modal>
     </div>

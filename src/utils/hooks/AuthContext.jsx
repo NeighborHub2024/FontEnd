@@ -19,9 +19,13 @@ export const AuthProvider = ({ children }) => {
         // Store user data and token
         localStorage.setItem('user', JSON.stringify(userInfo));
         localStorage.setItem('access_token', access_token);
+        
         setUser(userInfo);  // Set the user state
         if(userInfo.role.toLowerCase() === 'admin') {
           window.location.href = '/admin';
+        } else {
+          const redirectTo = location.state?.from || '/user/profile';
+          window.location.href = (redirectTo); // Navigate to the stored route or the default profile page
         }
       }
       return response; // Return response for further handling if needed
